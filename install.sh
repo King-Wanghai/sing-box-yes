@@ -27,7 +27,7 @@ OS_ARCH=''
 SING_BOX_VERSION=''
 
 #script version
-SING_BOX_YES_VERSION='0.0.2'
+SING_BOX_YES_VERSION='0.0.3'
 
 #package download path
 DOWNLAOD_PATH='/usr/local/sing-box'
@@ -124,6 +124,8 @@ arch_check() {
         OS_ARCH="amd64"
     elif [[ ${OS_ARCH} == "aarch64" || ${OS_ARCH} == "arm64" ]]; then
         OS_ARCH="arm64"
+    elif [[ ${OS_ARCH} == "armv7l" || ${OS_ARCH} == "armv7" ]]; then
+        OS_ARCH="armv7"
     else
         OS_ARCH="amd64"
         LOGE "检测系统架构失败，使用默认架构: ${OS_ARCH}"
