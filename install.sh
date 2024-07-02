@@ -89,7 +89,7 @@ confirm() {
 }
 
 #Root check
-[[ $EUID -ne 0 ]] && LOGE "请使用root用户运行该脚本" && exit 1
+[[ $EUID -ne 0 ]] && LOGE "请使用root用户运行该脚本" && show_menu
 
 #System check
 os_check() {
@@ -109,7 +109,7 @@ os_check() {
     elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
         OS_RELEASE="centos"
     else
-        LOGE "系统检测错误,请联系脚本作者!" && exit 1
+        LOGE "系统检测错误,请联系脚本作者!" && show_menu
     fi
     LOGI "系统检测完毕,当前系统为:${OS_RELEASE}"
 }
@@ -230,7 +230,7 @@ create_or_delete_path() {
 
     if [[ $# -ne 1 ]]; then
         LOGE "invalid input,should be one paremete,and can be 0 or 1"
-        exit 1
+        show_menu
     fi
     if [[ "$1" == "1" ]]; then
         LOGI "Will create ${DOWNLAOD_PATH} and ${CONFIG_FILE_PATH} for sing-box..."
@@ -238,7 +238,7 @@ create_or_delete_path() {
         mkdir -p ${DOWNLAOD_PATH} ${CONFIG_FILE_PATH}
         if [[ $? -ne 0 ]]; then
             LOGE "create ${DOWNLAOD_PATH} and ${CONFIG_FILE_PATH} for sing-box failed"
-            exit 1
+            show_menu
         else
             LOGI "create ${DOWNLAOD_PATH} adn ${CONFIG_FILE_PATH} for sing-box success"
         fi
@@ -247,7 +247,7 @@ create_or_delete_path() {
         rm -rf ${DOWNLAOD_PATH} ${CONFIG_FILE_PATH}
         if [[ $? -ne 0 ]]; then
             LOGE "delete ${DOWNLAOD_PATH} and ${CONFIG_FILE_PATH} failed"
-            exit 1
+            show_menu
         else
             LOGI "delete ${DOWNLAOD_PATH} and ${CONFIG_FILE_PATH} success"
         fi
@@ -270,7 +270,7 @@ download_sing-box() {
     os_check && arch_check && install_base
     if [[ $# -gt 1 ]]; then
         echo -e "${red}invalid input,plz check your input: $* ${plain}"
-        exit 1
+        show_menu
     elif [[ $# -eq 1 ]]; then
         SING_BOX_VERSION=$1
         local SING_BOX_VERSION_TEMP="v${SING_BOX_VERSION}"
@@ -288,7 +288,7 @@ download_sing-box() {
     if [[ $? -ne 0 ]]; then
         LOGE "Download sing-box failed,plz be sure that your network work properly and can access github"
         create_or_delete_path 0
-        exit 1
+        show_menu
     else
         LOGI "下载sing-box成功"
     fi
@@ -304,7 +304,7 @@ download_config() {
         wget --no-check-certificate -O ${CONFIG_FILE_PATH}/config.json https://raw.githubusercontent.com/FranzKafkaYu/sing-box-yes/main/shadowsocks2022/server_config.json
         if [[ $? -ne 0 ]]; then
             LOGE "下载sing-box配置模板失败,请检查网络"
-            exit 1
+            show_menu
         else
             LOGI "下载sing-box配置模板成功"
         fi
@@ -350,7 +350,7 @@ install_sing-box() {
     if [[ ! -f "${DOWNLAOD_PATH}/sing-box-${SING_BOX_VERSION}-linux-${OS_ARCH}.tar.gz" ]]; then
         clear_sing_box
         LOGE "could not find sing-box packages,plz check dowanload sing-box whether suceess"
-        exit 1
+        show_menu
     fi
     cd ${DOWNLAOD_PATH}
     #decompress sing-box packages
@@ -359,7 +359,7 @@ install_sing-box() {
     if [[ $? -ne 0 ]]; then
         clear_sing_box
         LOGE "解压sing-box安装包失败,脚本退出"
-        exit 1
+        show_menu
     else
         LOGI "解压sing-box安装包成功"
     fi
@@ -369,7 +369,7 @@ install_sing-box() {
 
     if [[ $? -ne 0 ]]; then
         LOGE "install sing-box failed,exit"
-        exit 1
+        show_menu
     else
         LOGI "install sing-box suceess"
     fi
@@ -418,7 +418,7 @@ uninstall_sing-box() {
 
     if [ $? -ne 0 ]; then
         LOGE "卸载sing-box失败,请检查日志"
-        exit 1
+        show_menu
     else
         LOGI "卸载sing-box成功"
     fi
@@ -434,7 +434,7 @@ install_systemd_service() {
     touch ${SERVICE_FILE_PATH}
     if [ $? -ne 0 ]; then
         LOGE "create service file failed,exit"
-        exit 1
+        show_menu
     else
         LOGI "create service file success..."
     fi
@@ -468,13 +468,13 @@ start_sing-box() {
         status_check
         if [ $? == ${SING_BOX_STATUS_NOT_RUNNING} ]; then
             LOGE "start sing-box service failed,exit"
-            exit 1
+            show_menu
         elif [ $? == ${SING_BOX_STATUS_RUNNING} ]; then
             LOGI "start sing-box service success"
         fi
     else
         LOGE "${SERVICE_FILE_PATH} does not exist,can not start service"
-        exit 1
+        show_menu
     fi
 }
 
@@ -486,13 +486,13 @@ restart_sing-box() {
         status_check
         if [ $? == 0 ]; then
             LOGE "restart sing-box service failed,exit"
-            exit 1
+            show_menu
         elif [ $? == 1 ]; then
             LOGI "restart sing-box service success"
         fi
     else
         LOGE "${SERVICE_FILE_PATH} does not exist,can not restart service"
-        exit 1
+        show_menu
     fi
 }
 
@@ -502,14 +502,14 @@ stop_sing-box() {
     status_check
     if [ $? == ${SING_BOX_STATUS_NOT_INSTALL} ]; then
         LOGE "sing-box did not install,can not stop it"
-        exit 1
+        show_menu
     elif [ $? == ${SING_BOX_STATUS_NOT_RUNNING} ]; then
         LOGI "sing-box already stoped,no need to stop it again"
-        exit 1
+        show_menu
     elif [ $? == ${SING_BOX_STATUS_RUNNING} ]; then
         if ! systemctl stop sing-box; then
             LOGE "stop sing-box service failed,plz check logs"
-            exit 1
+            show_menu
         fi
     fi
     LOGD "停止sing-box服务成功"
@@ -545,12 +545,12 @@ show_log() {
 
         if [[ ${disabled} == "true" ]]; then
             LOGI "当前未开启日志,请确认配置"
-            exit 1
+            show_menu
         else
             local filePath=$(cat ${CONFIG_FILE_PATH}/config.json | jq .log.output | tr -d '"')
             if [[ ! -n ${filePath} || ! -f ${filePath} ]]; then
                 LOGE "日志${filePath}不存在,查看sing-box日志失败"
-                exit 1
+                show_menu
             else
                 LOGI "日志文件路径:${DEFAULT_LOG_FILE_SAVE_PATH}"
                 tail -f ${DEFAULT_LOG_FILE_SAVE_PATH} -s 3
@@ -574,7 +574,7 @@ clear_log() {
     LOGI "日志路径为:${filePath}"
     if [[ ! -f ${filePath} ]]; then
         LOGE "清除sing-box 日志文件失败,${filePath}不存在,请确认"
-        exit 1
+        show_menu
     fi
     fileSize=$(ls -la ${filePath} --block-size=M | awk '{print $5}' | awk -F 'M' '{print$1}')
     if [[ ${fileSize} -gt ${DEFAULT_LOG_FILE_DELETE_TRIGGER} ]]; then
@@ -596,7 +596,7 @@ enable_auto_clear_log() {
     disabled=$(cat ${CONFIG_FILE_PATH}/config.json | jq .log.disabled | tr -d '"')
     if [[ ${disabled} == "true" ]]; then
         LOGE "当前系统未开启日志,将直接退出脚本"
-        exit 0
+        show_menu
     fi
     local filePath=''
     if [[ $# -gt 0 ]]; then
@@ -606,7 +606,7 @@ enable_auto_clear_log() {
     fi
     if [[ ! -f ${filePath} ]]; then
         LOGE "${filePath}不存在,设置sing-box 定时清除日志失败"
-        exit 1
+        show_menu
     fi
     crontab -l >/tmp/crontabTask.tmp
     echo "0 0 * * 6 sing-box clear ${filePath}" >>/tmp/crontabTask.tmp
