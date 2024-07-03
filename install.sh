@@ -300,17 +300,6 @@ download_config() {
     if [[ ! -d ${CONFIG_FILE_PATH} ]]; then
         mkdir -p ${CONFIG_FILE_PATH}
     fi
-    if [[ ! -f "${CONFIG_FILE_PATH}/config.json" ]]; then
-        wget --no-check-certificate -O ${CONFIG_FILE_PATH}/config.json https://raw.githubusercontent.com/FranzKafkaYu/sing-box-yes/main/shadowsocks2022/server_config.json
-        if [[ $? -ne 0 ]]; then
-            LOGE "下载sing-box配置模板失败,请检查网络"
-            show_menu
-        else
-            LOGI "下载sing-box配置模板成功"
-        fi
-    else
-        LOGI "${CONFIG_FILE_PATH} 已存在,无需重复下载"
-    fi
 }
 
 #backup config，this will be called when update sing-box
