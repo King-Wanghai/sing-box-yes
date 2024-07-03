@@ -27,7 +27,7 @@ OS_ARCH=''
 SING_BOX_VERSION=''
 
 #script version
-SING_BOX_YES_VERSION='0.0.4'
+SING_BOX_YES_VERSION='0.0.5'
 
 #package download path
 DOWNLAOD_PATH='/usr/local/sing-box'
@@ -303,18 +303,6 @@ download_config() {
 }
 
 #backup config，this will be called when update sing-box
-backup_config() {
-    LOGD "开始备份sing-box配置文件..."
-    if [[ ! -f "${CONFIG_FILE_PATH}/config.json" ]]; then
-        LOGE "当前无可备份配置文件"
-        return 0
-    else
-        mv ${CONFIG_FILE_PATH}/config.json ${CONFIG_BACKUP_PATH}/config.json.bak
-    fi
-    LOGD "备份sing-box配置文件完成"
-}
-
-#backup config，this will be called when update sing-box
 restore_config() {
     LOGD "开始还原sing-box配置文件..."
     if [[ ! -f "${CONFIG_BACKUP_PATH}/config.json.bak" ]]; then
@@ -373,8 +361,7 @@ update_sing-box() {
         LOGE "当前系统未安装sing-box,请在安装sing-box的前提下使用更新命令"
         show_menu
     fi
-    #here we need back up config first,and then restore it after installation
-    backup_config
+
     #get the version paremeter
     if [[ $# -ne 0 ]]; then
         install_sing-box $1
